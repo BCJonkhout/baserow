@@ -6,6 +6,9 @@ on:
       - develop
       - master
   pull_request:
+  schedule:
+    # Run daily at 2 AM UTC to execute run-once-per-day-in-ci tests
+    - cron: "0 2 * * *"
   workflow_dispatch:
     inputs:
       clear_cache:
@@ -13,14 +16,20 @@ on:
         required: false
         default: false
         type: boolean
+      run_daily_tests:
+        description: "Run tests marked with run-once-per-day-in-ci"
+        required: false
+        default: false
+        type: boolean
 
 # Customize the workflow run name to show branch/PR info
-run-name: "CI: ${{ github.event_name == 'pull_request' && github.event.pull_request.title || github.ref_name }}${{ inputs.clear_cache && ' (cache cleared)' || '' }}"
+run-name: "CI: ${{ github.event_name == 'pull_request' && github.event.pull_request.title || github.ref_name }}${{ inputs.clear_cache && ' (cache cleared)' || '' }}${{ github.event_name == 'schedule' && ' (scheduled daily)' || '' }}${{ inputs.run_daily_tests && ' (daily tests)' || '' }}"
 
 # Automatically cancel in-progress workflows for the same branch/PR
+# Scheduled runs get unique groups to avoid being cancelled
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.event_name == 'schedule' && github.run_id || github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name != 'schedule' }}
 
 env:
   REGISTRY: ghcr.io
@@ -201,7 +210,7 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - detect-changes
-    if: needs.detect-changes.outputs.backend == 'true' || github.ref_name == 'develop' || github.ref_name == 'master'
+    if: needs.detect-changes.outputs.backend == 'true' || github.ref_name == 'develop' || github.ref_name == 'master' || github.event_name == 'schedule'
     steps:
       - uses: actions/checkout@v4
 
@@ -222,7 +231,7 @@ jobs:
     needs:
       - build-frontend
       - detect-changes
-    if: needs.detect-changes.outputs.frontend == 'true' || github.ref_name == 'develop' || github.ref_name == 'master'
+    if: needs.detect-changes.outputs.frontend == 'true' || github.ref_name == 'develop' || github.ref_name == 'master' || github.event_name == 'schedule'
     permissions:
       contents: read
       packages: read
@@ -242,7 +251,7 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - detect-changes
-    if: needs.detect-changes.outputs.dockerfiles == 'true' || github.ref_name == 'develop' || github.ref_name == 'master'
+    if: needs.detect-changes.outputs.dockerfiles == 'true' || github.ref_name == 'develop' || github.ref_name == 'master' || github.event_name == 'schedule'
     permissions:
       contents: read
     steps:
@@ -283,7 +292,7 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - detect-changes
-    if: needs.detect-changes.outputs.helm == 'true' || github.ref_name == 'develop' || github.ref_name == 'master'
+    if: needs.detect-changes.outputs.helm == 'true' || github.ref_name == 'develop' || github.ref_name == 'master' || github.event_name == 'schedule'
     permissions:
       contents: read
     steps:
@@ -318,7 +327,7 @@ jobs:
     needs:
       - build-backend
       - detect-changes
-    if: needs.detect-changes.outputs.backend == 'true' || github.ref_name == 'develop' || github.ref_name == 'master'
+    if: needs.detect-changes.outputs.backend == 'true' || github.ref_name == 'develop' || github.ref_name == 'master' || github.event_name == 'schedule'
     permissions:
       contents: read
       packages: read
@@ -377,7 +386,7 @@ jobs:
       - build-backend
       - backend-lint
       - detect-changes
-    if: needs.detect-changes.outputs.backend == 'true' || github.ref_name == 'develop' || github.ref_name == 'master'
+    if: needs.detect-changes.outputs.backend == 'true' || github.ref_name == 'develop' || github.ref_name == 'master' || github.event_name == 'schedule'
     permissions:
       contents: read
       packages: read
@@ -410,6 +419,9 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run backend tests for group ${{ matrix.group }}
+        env:
+          # Include daily tests when running on schedule or when manually requested
+          PYTEST_EXTRA_ARGS: ${{ (github.event_name == 'schedule' || inputs.run_daily_tests) && '--run-once-per-day-in-ci' || '' }}
         run: |
           mkdir -p reports
           docker run \
@@ -417,6 +429,7 @@ jobs:
             --network="${{ job.services.db.network }}" \
             -e PYTEST_SPLITS=10 \
             -e PYTEST_SPLIT_GROUP=${{ matrix.group }} \
+            -e PYTEST_EXTRA_ARGS="${PYTEST_EXTRA_ARGS}" \
             -e DATABASE_HOST=db \
             -e DATABASE_PORT=5432 \
             -e DATABASE_NAME=baserow \
@@ -450,7 +463,7 @@ jobs:
     needs:
       - build-frontend
       - detect-changes
-    if: needs.detect-changes.outputs.frontend == 'true' || github.ref_name == 'develop' || github.ref_name == 'master'
+    if: needs.detect-changes.outputs.frontend == 'true' || github.ref_name == 'develop' || github.ref_name == 'master' || github.event_name == 'schedule'
     permissions:
       contents: read
       packages: read
@@ -504,7 +517,7 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - detect-changes
-    if: needs.detect-changes.outputs.zapier == 'true' || github.ref_name == 'develop' || github.ref_name == 'master'
+    if: needs.detect-changes.outputs.zapier == 'true' || github.ref_name == 'develop' || github.ref_name == 'master' || github.event_name == 'schedule'
     permissions:
       contents: read
     steps:
@@ -529,7 +542,7 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - detect-changes
-    if: needs.detect-changes.outputs.mjml == 'true' || github.ref_name == 'develop' || github.ref_name == 'master'
+    if: needs.detect-changes.outputs.mjml == 'true' || github.ref_name == 'develop' || github.ref_name == 'master' || github.event_name == 'schedule'
     permissions:
       contents: read
     steps:
@@ -569,7 +582,7 @@ jobs:
       - detect-changes
       - build-backend
       - build-frontend
-    if: needs.detect-changes.outputs.backend == 'true' || needs.detect-changes.outputs.frontend == 'true' || needs.detect-changes.outputs.dockerfiles == 'true' || github.ref_name == 'develop' || github.ref_name == 'master'
+    if: needs.detect-changes.outputs.backend == 'true' || needs.detect-changes.outputs.frontend == 'true' || needs.detect-changes.outputs.dockerfiles == 'true' || github.ref_name == 'develop' || github.ref_name == 'master' || github.event_name == 'schedule'
     permissions:
       contents: read
       packages: read
@@ -878,7 +891,7 @@ jobs:
   build-final-backend:
     name: Build Final Backend Image
     runs-on: ubuntu-latest
-    if: needs.check-build-and-publish.outputs.should_build_and_publish == 'true' && (github.ref_name == 'develop' || github.ref_name == 'master' || github.event_name == 'workflow_dispatch')
+    if: needs.check-build-and-publish.outputs.should_build_and_publish == 'true' && (github.ref_name == 'develop' || github.ref_name == 'master' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
     needs:
       - test-backend
       - test-e2e
@@ -920,7 +933,7 @@ jobs:
   build-final-web-frontend:
     name: Build Final Web-Frontend Image
     runs-on: ubuntu-latest
-    if: needs.check-build-and-publish.outputs.should_build_and_publish == 'true' && (github.ref_name == 'develop' || github.ref_name == 'master' || github.event_name == 'workflow_dispatch')
+    if: needs.check-build-and-publish.outputs.should_build_and_publish == 'true' && (github.ref_name == 'develop' || github.ref_name == 'master' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
     needs:
       - test-frontend
       - frontend-lint
@@ -962,7 +975,7 @@ jobs:
   build-final-all-in-one:
     name: Build All-in-One Image
     runs-on: ubuntu-latest
-    if: needs.check-build-and-publish.outputs.should_build_and_publish == 'true' && (github.ref_name == 'develop' || github.ref_name == 'master' || github.event_name == 'workflow_dispatch')
+    if: needs.check-build-and-publish.outputs.should_build_and_publish == 'true' && (github.ref_name == 'develop' || github.ref_name == 'master' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
     needs:
       - build-final-backend
       - build-final-web-frontend
@@ -1003,7 +1016,7 @@ jobs:
   build-cloudron:
     name: Build Cloudron Image
     runs-on: ubuntu-latest
-    if: needs.check-build-and-publish.outputs.should_build_and_publish == 'true' && (github.ref_name == 'develop' || github.ref_name == 'master' || github.event_name == 'workflow_dispatch')
+    if: needs.check-build-and-publish.outputs.should_build_and_publish == 'true' && (github.ref_name == 'develop' || github.ref_name == 'master' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
     needs:
       - build-final-all-in-one
       - check-build-and-publish
