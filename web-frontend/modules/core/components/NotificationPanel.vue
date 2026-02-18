@@ -1,110 +1,112 @@
 <template>
-  <div
-    class="notification-panel"
-    :class="{ 'visibility-hidden': !open }"
-    ph-autocapture="notifications"
-  >
-    <div class="notification-panel__head">
-      <div class="notification-panel__title">
-        {{ $t('notificationPanel.title') }}
-      </div>
-      <div v-show="totalCount > 0" class="notification-panel__actions">
-        <a
-          v-show="unreadCount > 0"
-          class="notification-panel__action"
-          @click="markAllAsRead"
-        >
-          {{ $t('notificationPanel.markAllAsRead') }}
-        </a>
-        <a
-          class="notification-panel__action"
-          @click="$refs.clearAllConfirmModal.show()"
-        >
-          {{ $t('notificationPanel.clearAll') }}
-        </a>
-      </div>
-    </div>
-    <div v-if="!loaded && loading" class="loading-absolute-center"></div>
-    <div v-else-if="totalCount === 0" class="notification-panel__empty">
-      <i class="notification-panel__empty-icon iconoir-bell-off"></i>
-      <div class="notification-panel__empty-title">
-        {{ $t('notificationPanel.noNotificationTitle') }}
-      </div>
-      <div class="notification-panel__empty-text">
-        {{ $t('notificationPanel.noNotification') }}
-      </div>
-    </div>
-    <div v-else class="notification-panel__body">
-      <div v-if="needRefresh" class="notification-panel__refresh-hint">
-        <div class="notification-panel__refresh-hint-text">
-          <span class="notification-panel__refresh-hint-icon"></span>
-          {{ $t('notificationPanel.newNotificationsAvailable') }}
+  <Teleport to="body">
+    <div
+      class="notification-panel"
+      :class="{ 'visibility-hidden': !open }"
+      ph-autocapture="notifications"
+    >
+      <div class="notification-panel__head">
+        <div class="notification-panel__title">
+          {{ $t('notificationPanel.title') }}
         </div>
-        <Button type="secondary" @click.prevent="initialLoad">
-          {{ $t('notificationPanel.refresh') }}
-        </Button>
-      </div>
-      <InfiniteScroll
-        ref="infiniteScroll"
-        :current-count="currentCount"
-        :max-count="totalCount"
-        :loading="loading"
-        :render-end="false"
-        @load-next-page="loadNextPage"
-      >
-        <template #default>
-          <div
-            v-for="(notification, index) in notifications"
-            :key="index"
-            class="notification-panel__notification"
-            :class="{
-              'notification-panel__notification--unread': !notification.read,
-            }"
+        <div v-show="totalCount > 0" class="notification-panel__actions">
+          <a
+            v-show="unreadCount > 0"
+            class="notification-panel__action"
+            @click="markAllAsRead"
           >
-            <div class="notification-panel__notification-icon">
-              <component
-                :is="getNotificationIcon(notification)"
-                :notification="notification"
-                v-bind="getNotificationIconProps(notification)"
-              >
-              </component>
-            </div>
-            <div class="notification-panel__notification-content">
-              <component
-                :is="getNotificationContent(notification)"
-                :notification="notification"
-                :workspace="workspace"
-                @close-panel="hide"
-              >
-              </component>
-              <div class="notification-panel__notification-time">
-                {{ timeAgo(notification.created_on) }}
+            {{ $t('notificationPanel.markAllAsRead') }}
+          </a>
+          <a
+            class="notification-panel__action"
+            @click="$refs.clearAllConfirmModal.show()"
+          >
+            {{ $t('notificationPanel.clearAll') }}
+          </a>
+        </div>
+      </div>
+      <div v-if="!loaded && loading" class="loading-absolute-center"></div>
+      <div v-else-if="totalCount === 0" class="notification-panel__empty">
+        <i class="notification-panel__empty-icon iconoir-bell-off"></i>
+        <div class="notification-panel__empty-title">
+          {{ $t('notificationPanel.noNotificationTitle') }}
+        </div>
+        <div class="notification-panel__empty-text">
+          {{ $t('notificationPanel.noNotification') }}
+        </div>
+      </div>
+      <div v-else class="notification-panel__body">
+        <div v-if="needRefresh" class="notification-panel__refresh-hint">
+          <div class="notification-panel__refresh-hint-text">
+            <span class="notification-panel__refresh-hint-icon"></span>
+            {{ $t('notificationPanel.newNotificationsAvailable') }}
+          </div>
+          <Button type="secondary" @click.prevent="initialLoad">
+            {{ $t('notificationPanel.refresh') }}
+          </Button>
+        </div>
+        <InfiniteScroll
+          ref="infiniteScroll"
+          :current-count="currentCount"
+          :max-count="totalCount"
+          :loading="loading"
+          :render-end="false"
+          @load-next-page="loadNextPage"
+        >
+          <template #default>
+            <div
+              v-for="(notification, index) in notifications"
+              :key="index"
+              class="notification-panel__notification"
+              :class="{
+                'notification-panel__notification--unread': !notification.read,
+              }"
+            >
+              <div class="notification-panel__notification-icon">
+                <component
+                  :is="getNotificationIcon(notification)"
+                  :notification="notification"
+                  v-bind="getNotificationIconProps(notification)"
+                >
+                </component>
+              </div>
+              <div class="notification-panel__notification-content">
+                <component
+                  :is="getNotificationContent(notification)"
+                  :notification="notification"
+                  :workspace="workspace"
+                  @close-panel="hide"
+                >
+                </component>
+                <div class="notification-panel__notification-time">
+                  {{ timeAgo(notification.created_on) }}
+                </div>
+              </div>
+              <div class="notification-panel__notification-status">
+                <span v-if="!notification.read"></span>
               </div>
             </div>
-            <div class="notification-panel__notification-status">
-              <span v-if="!notification.read"></span>
-            </div>
-          </div>
-        </template>
-      </InfiniteScroll>
+          </template>
+        </InfiniteScroll>
+      </div>
+      <ClearAllNotificationsConfirmModal
+        ref="clearAllConfirmModal"
+        @confirm="
+          ($event) => {
+            $event.preventDefault()
+            $event.stopPropagation()
+            clearAll()
+          }
+        "
+        @cancel="
+          ($event) => {
+            $event.preventDefault()
+            $event.stopPropagation()
+          }
+        "
+      ></ClearAllNotificationsConfirmModal>
     </div>
-    <ClearAllNotificationsConfirmModal
-      ref="clearAllConfirmModal"
-      @confirm="
-        ($event) => {
-          $event.preventDefault()
-          $event.stopPropagation()
-          clearAll()
-        }
-      "
-      @cancel="
-        ($event) => {
-          $event.preventDefault()
-          $event.stopPropagation()
-        }
-      "
-    ></ClearAllNotificationsConfirmModal>
-  </div>
+  </Teleport>
 </template>
 
 <script>
@@ -114,7 +116,6 @@ import { isElement, onClickOutside } from '@baserow/modules/core/utils/dom'
 import { notifyIf } from '@baserow/modules/core/utils/error'
 import InfiniteScroll from '@baserow/modules/core/components/helpers/InfiniteScroll'
 import ClearAllNotificationsConfirmModal from '@baserow/modules/core/components/modals/ClearAllNotificationsConfirmModal'
-import MoveToBody from '@baserow/modules/core/mixins/moveToBody'
 
 export default {
   name: 'NotificationPanel',
@@ -122,13 +123,19 @@ export default {
     ClearAllNotificationsConfirmModal,
     InfiniteScroll,
   },
-  mixins: [MoveToBody],
+  mixins: [],
+  provide() {
+    return {
+      registerMoveToBodyChild: this.registerChild,
+    }
+  },
   emits: ['hidden', 'shown'],
   data() {
     return {
       open: false,
       needRefresh: false,
       removeOnClickOutsideHandler: null,
+      childContexts: [],
     }
   },
   computed: {
@@ -186,7 +193,7 @@ export default {
         if (
           this.open &&
           !isElement(opener, target) &&
-          !this.moveToBody.children.some((child) => {
+          !this.childContexts.some((child) => {
             return isElement(child.$el, target)
           })
         ) {
@@ -194,6 +201,9 @@ export default {
         }
       })
       this.$emit('shown')
+    },
+    registerChild(child) {
+      this.childContexts.push(child)
     },
     hide() {
       this.open = false
