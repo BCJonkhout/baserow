@@ -2,13 +2,13 @@ export default {
   mixins: [],
   provide() {
     return {
-      registerModal: this.registerModal,
-      registerMoveToBodyChild: this.registerMoveToBodyChild,
+      registerChildModal: this.registerChildModal,
+      registerChildContext: this.registerChildContext,
     }
   },
   inject: {
     parentRegisterModal: {
-      from: 'registerModal',
+      from: 'registerChildModal',
       default: null,
     },
   },
@@ -21,8 +21,8 @@ export default {
       // variable to be set on mousedown to be consistent.
       downElement: null,
       isModal: true,
-      childModals: [], // For other Modals
-      legacyChildren: [], // For Context.vue relying on moveToBody pattern
+      childModals: [],
+      childContexts: [],
     }
   },
   props: {
@@ -90,7 +90,7 @@ export default {
 
       const hasOpenModalAsChild =
         this.childModals.some((child) => child.open === true) ||
-        this.legacyChildren.some((child) => child.open === true)
+        this.childContexts.some((child) => child.open === true)
 
       // When the `esc` key is pressed and multiple modals are open, then we don't
       // want to close them all. Only last opened modal should close. This will make
@@ -121,11 +121,11 @@ export default {
         this.$emit('hidden')
       }
     },
-    registerModal(modal) {
+    registerChildModal(modal) {
       this.childModals.push(modal)
     },
-    registerMoveToBodyChild(child) {
-      this.legacyChildren.push(child)
+    registerChildContext(child) {
+      this.childContexts.push(child)
     },
     /**
      * If someone actually clicked on the modal wrapper and not one of his children the

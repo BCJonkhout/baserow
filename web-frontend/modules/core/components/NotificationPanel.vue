@@ -129,7 +129,7 @@ export default {
   mixins: [],
   provide() {
     return {
-      registerMoveToBodyChild: this.registerChild,
+      registerChildContext: this.registerChild,
     }
   },
   emits: ['hidden', 'shown'],

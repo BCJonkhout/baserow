@@ -27,12 +27,12 @@ export default {
   inheritAttrs: false,
   provide() {
     return {
-      registerMoveToBodyChild: this.registerChild,
+      registerChildContext: this.registerChild,
     }
   },
   inject: {
-    parentRegisterMoveToBodyChild: {
-      from: 'registerMoveToBodyChild',
+    parentRegisterChildContext: {
+      from: 'registerChildContext',
       default: null,
     },
   },
@@ -560,8 +560,8 @@ export default {
     },
   },
   mounted() {
-    if (this.parentRegisterMoveToBodyChild) {
-      this.parentRegisterMoveToBodyChild(this)
+    if (this.parentRegisterChildContext) {
+      this.parentRegisterChildContext(this)
     }
   },
   beforeUnmount() {

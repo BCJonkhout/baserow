@@ -169,16 +169,26 @@ export default {
         return true
       }
 
+      const selectModal = this.$refs.selectModal.$refs.modal
+      const rowEditModal =
+        this.$refs.rowEditModal.$refs.modal.$refs.modal
+
       const openModals = [
-        ...this.$refs.selectModal.$refs.modal.moveToBody.children.map(
-          (child) => child.$el
+        selectModal.$refs.modalWrapper,
+        ...selectModal.childContexts.map(
+          (child) => child.$refs.contextEl
         ),
-        this.$refs.selectModal.$el,
-        ...this.$refs.rowEditModal.$refs.modal.$refs.modal.moveToBody.children.map(
-          (child) => child.$el
+        ...selectModal.childModals.map(
+          (child) => child.$refs.modalWrapper
         ),
-        this.$refs.rowEditModal.$refs.modal.$el,
-      ]
+        rowEditModal.$refs.modalWrapper,
+        ...rowEditModal.childContexts.map(
+          (child) => child.$refs.contextEl
+        ),
+        ...rowEditModal.childModals.map(
+          (child) => child.$refs.modalWrapper
+        ),
+      ].filter(Boolean)
 
       return (
         // If the user clicks inside the select or row edit modal, we don't want to
