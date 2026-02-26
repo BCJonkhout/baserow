@@ -3,6 +3,7 @@
     <div
       v-if="open"
       ref="modalWrapper"
+      v-bind="$attrs"
       class="modal__wrapper file-field-modal__wrapper"
       @mousedown="outside($event)"
     >
@@ -124,6 +125,7 @@ import {
 
 export default {
   name: 'FileFieldModal',
+  inheritAttrs: false,
   components: {
     PreviewAny,
   },

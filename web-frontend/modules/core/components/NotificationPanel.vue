@@ -1,6 +1,8 @@
 <template>
   <Teleport to="body">
     <div
+      ref="panelEl"
+      v-bind="$attrs"
       class="notification-panel"
       :class="{ 'visibility-hidden': !open }"
       ph-autocapture="notifications"
@@ -119,6 +121,7 @@ import ClearAllNotificationsConfirmModal from '@baserow/modules/core/components/
 
 export default {
   name: 'NotificationPanel',
+  inheritAttrs: false,
   components: {
     ClearAllNotificationsConfirmModal,
     InfiniteScroll,
@@ -189,17 +192,21 @@ export default {
       }
       this.open = true
       const opener = target
-      this.removeOnClickOutsideHandler = onClickOutside(this.$el, (target) => {
-        if (
-          this.open &&
-          !isElement(opener, target) &&
-          !this.childContexts.some((child) => {
-            return isElement(child.$el, target)
-          })
-        ) {
-          this.hide()
+      this.removeOnClickOutsideHandler = onClickOutside(
+        this.$refs.panelEl,
+        (target) => {
+          if (
+            this.open &&
+            !isElement(opener, target) &&
+            !this.childContexts.some((child) => {
+              const el = child.$refs?.contextEl || child.$refs?.panelEl
+              return el && isElement(el, target)
+            })
+          ) {
+            this.hide()
+          }
         }
-      })
+      )
       this.$emit('shown')
     },
     registerChild(child) {

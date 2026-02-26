@@ -1,7 +1,9 @@
 <template>
   <Teleport to="body">
     <div
+      ref="contextEl"
       v-auto-overflow-scroll="open && overflowScroll"
+      v-bind="$attrs"
       class="context"
       :class="{
         'visibility-hidden': !open || !updatedOnce,
@@ -22,7 +24,7 @@ import {
 
 export default {
   name: 'Context',
-  mixins: [],
+  inheritAttrs: false,
   provide() {
     return {
       registerMoveToBodyChild: this.registerChild,
@@ -143,6 +145,9 @@ export default {
     ) {
       const isElementOrigin = isDomElement(target)
       const updatePosition = () => {
+        const el = this.$refs.contextEl
+        if (!el) return
+
         const css = isElementOrigin
           ? this.calculatePositionElement(
               target,
@@ -172,11 +177,10 @@ export default {
           return
         }
 
-        // Set the calculated positions of the context.
         for (const key in css) {
           const cssValue =
             css[key] !== null ? Math.ceil(css[key]) + 'px' : 'auto'
-          this.$el.style[key] = cssValue
+          el.style[key] = cssValue
         }
 
         // The max height can optionally be automatically to prevent the context from
@@ -190,7 +194,7 @@ export default {
                   this.getWindowScrollHeight()
                 }px)`
               : 'none'
-          this.$el.style['max-height'] = maxHeight
+          el.style['max-height'] = maxHeight
         }
 
         this.updatedOnce = true
@@ -207,35 +211,30 @@ export default {
       await this.$nextTick()
       updatePosition()
 
-      this.$el.cancelOnClickOutside = onClickOutside(this.$el, (target) => {
+      // Cancel any previous handlers before setting up new ones
+      this._cleanupEventHandlers()
+
+      const el = this.$refs.contextEl
+      this._cancelOnClickOutside = onClickOutside(el, (clickTarget) => {
         if (
           this.open &&
-          // If the prop allows it to be closed by clicking outside.
           this.hideOnClickOutside &&
-          // If the click was not on the opener because they can trigger the toggle
-          // method.
-          !isElement(this.opener, target) &&
-          // If the click was not inside one of the context children of this context
-          // menu.
+          !isElement(this.opener, clickTarget) &&
           !this.childContexts.some((child) => {
-            return isElement(child.$el, target)
+            return isElement(child.$refs.contextEl, clickTarget)
           })
         ) {
           this.hide()
         }
       })
 
-      this.$el.updatePositionViaScrollEvent = (event) => {
+      this._updatePositionViaScrollEvent = (event) => {
         if (this.hideOnScroll) {
           this.hide()
         } else if (
-          // The context menu itself can have a scrollbar, and resizing everytime you
-          // scroll internally doesn't make sense because it can't influence the position.
-          !isElement(this.$el, event.target) &&
-          // If the scroll was not inside one of the context children of this context
-          // menu.
+          !isElement(this.$refs.contextEl, event.target) &&
           !this.childContexts.some((child) => {
-            return isElement(child.$el, target)
+            return isElement(child.$refs.contextEl, event.target)
           })
         ) {
           updatePosition()
@@ -243,18 +242,18 @@ export default {
       }
       window.addEventListener(
         'scroll',
-        this.$el.updatePositionViaScrollEvent,
+        this._updatePositionViaScrollEvent,
         true
       )
 
-      this.$el.updatePositionViaResizeEvent = () => {
+      this._updatePositionViaResizeEvent = () => {
         if (this.hideOnResize) {
           this.hide()
         } else {
           updatePosition()
         }
       }
-      window.addEventListener('resize', this.$el.updatePositionViaResizeEvent)
+      window.addEventListener('resize', this._updatePositionViaResizeEvent)
 
       this.$emit('shown')
     },
@@ -321,22 +320,25 @@ export default {
         this.$emit('hidden')
       }
 
-      // If the context menu was never opened, it doesn't have the
-      // `cancelOnClickOutside`, so we can't call it.
-      if (
-        Object.prototype.hasOwnProperty.call(this.$el, 'cancelOnClickOutside')
-      ) {
-        this.$el.cancelOnClickOutside()
+      this._cleanupEventHandlers()
+    },
+    _cleanupEventHandlers() {
+      if (this._cancelOnClickOutside) {
+        this._cancelOnClickOutside()
+        this._cancelOnClickOutside = null
       }
-      window.removeEventListener(
-        'scroll',
-        this.$el.updatePositionViaScrollEvent,
-        true
-      )
-      window.removeEventListener(
-        'resize',
-        this.$el.updatePositionViaResizeEvent
-      )
+      if (this._updatePositionViaScrollEvent) {
+        window.removeEventListener(
+          'scroll',
+          this._updatePositionViaScrollEvent,
+          true
+        )
+        this._updatePositionViaScrollEvent = null
+      }
+      if (this._updatePositionViaResizeEvent) {
+        window.removeEventListener('resize', this._updatePositionViaResizeEvent)
+        this._updatePositionViaResizeEvent = null
+      }
     },
     /**
      * Calculates the absolute position of the context based on the original clicked
@@ -495,11 +497,9 @@ export default {
       verticalOffset,
       horizontalOffset
     ) {
-      const contextRect = this.$el.getBoundingClientRect()
-      // We need to use the scrollHeight in the calculations because we need to work
-      // with the full height of the element without scrollbar to calculate the optimal
-      // position.
-      const scrollHeight = this.$el.scrollHeight
+      const el = this.$refs.contextEl
+      const contextRect = el.getBoundingClientRect()
+      const scrollHeight = el.scrollHeight
       const canTop =
         targetRect.top -
           scrollHeight -
@@ -563,6 +563,9 @@ export default {
     if (this.parentRegisterMoveToBodyChild) {
       this.parentRegisterMoveToBodyChild(this)
     }
+  },
+  beforeUnmount() {
+    this.hide(false)
   },
 }
 </script>
