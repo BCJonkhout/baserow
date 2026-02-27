@@ -37,6 +37,24 @@ exports[`DateTimePickerElement > placeholder corresponds to date and time format
             <div>
               <!--v-if-->
             </div>
+            <teleport-stub
+              to="body"
+            >
+              <div
+                class="ab-datetime-picker__calendar--context context visibility-hidden"
+              >
+                <!--v-if-->
+              </div>
+            </teleport-stub>
+            <teleport-stub
+              to="body"
+            >
+              <div
+                class="ab-datetime-picker__clock context visibility-hidden"
+              >
+                <!--v-if-->
+              </div>
+            </teleport-stub>
           </div>
           
           <!--v-if-->
@@ -90,6 +108,24 @@ exports[`DateTimePickerElement > placeholder corresponds to date and time format
             <div>
               <!--v-if-->
             </div>
+            <teleport-stub
+              to="body"
+            >
+              <div
+                class="ab-datetime-picker__calendar--context context visibility-hidden"
+              >
+                <!--v-if-->
+              </div>
+            </teleport-stub>
+            <teleport-stub
+              to="body"
+            >
+              <div
+                class="ab-datetime-picker__clock context visibility-hidden"
+              >
+                <!--v-if-->
+              </div>
+            </teleport-stub>
           </div>
           
           <!--v-if-->
@@ -143,6 +179,24 @@ exports[`DateTimePickerElement > placeholder corresponds to date and time format
             <div>
               <!--v-if-->
             </div>
+            <teleport-stub
+              to="body"
+            >
+              <div
+                class="ab-datetime-picker__calendar--context context visibility-hidden"
+              >
+                <!--v-if-->
+              </div>
+            </teleport-stub>
+            <teleport-stub
+              to="body"
+            >
+              <div
+                class="ab-datetime-picker__clock context visibility-hidden"
+              >
+                <!--v-if-->
+              </div>
+            </teleport-stub>
           </div>
           
           <!--v-if-->
@@ -201,6 +255,24 @@ exports[`DateTimePickerElement > placeholder corresponds to date and time format
                 value=""
               />
             </div>
+            <teleport-stub
+              to="body"
+            >
+              <div
+                class="ab-datetime-picker__calendar--context context visibility-hidden"
+              >
+                <!--v-if-->
+              </div>
+            </teleport-stub>
+            <teleport-stub
+              to="body"
+            >
+              <div
+                class="ab-datetime-picker__clock context visibility-hidden"
+              >
+                <!--v-if-->
+              </div>
+            </teleport-stub>
           </div>
           
           <!--v-if-->
@@ -259,6 +331,24 @@ exports[`DateTimePickerElement > placeholder corresponds to date and time format
                 value=""
               />
             </div>
+            <teleport-stub
+              to="body"
+            >
+              <div
+                class="ab-datetime-picker__calendar--context context visibility-hidden"
+              >
+                <!--v-if-->
+              </div>
+            </teleport-stub>
+            <teleport-stub
+              to="body"
+            >
+              <div
+                class="ab-datetime-picker__clock context visibility-hidden"
+              >
+                <!--v-if-->
+              </div>
+            </teleport-stub>
           </div>
           
           <!--v-if-->
@@ -317,6 +407,24 @@ exports[`DateTimePickerElement > placeholder corresponds to date and time format
                 value=""
               />
             </div>
+            <teleport-stub
+              to="body"
+            >
+              <div
+                class="ab-datetime-picker__calendar--context context visibility-hidden"
+              >
+                <!--v-if-->
+              </div>
+            </teleport-stub>
+            <teleport-stub
+              to="body"
+            >
+              <div
+                class="ab-datetime-picker__clock context visibility-hidden"
+              >
+                <!--v-if-->
+              </div>
+            </teleport-stub>
           </div>
           
           <!--v-if-->
@@ -375,6 +483,24 @@ exports[`DateTimePickerElement > placeholder corresponds to date and time format
                 value=""
               />
             </div>
+            <teleport-stub
+              to="body"
+            >
+              <div
+                class="ab-datetime-picker__calendar--context context visibility-hidden"
+              >
+                <!--v-if-->
+              </div>
+            </teleport-stub>
+            <teleport-stub
+              to="body"
+            >
+              <div
+                class="ab-datetime-picker__clock context visibility-hidden"
+              >
+                <!--v-if-->
+              </div>
+            </teleport-stub>
           </div>
           
           <!--v-if-->
@@ -433,6 +559,24 @@ exports[`DateTimePickerElement > placeholder corresponds to date and time format
                 value=""
               />
             </div>
+            <teleport-stub
+              to="body"
+            >
+              <div
+                class="ab-datetime-picker__calendar--context context visibility-hidden"
+              >
+                <!--v-if-->
+              </div>
+            </teleport-stub>
+            <teleport-stub
+              to="body"
+            >
+              <div
+                class="ab-datetime-picker__clock context visibility-hidden"
+              >
+                <!--v-if-->
+              </div>
+            </teleport-stub>
           </div>
           
           <!--v-if-->
@@ -491,6 +635,24 @@ exports[`DateTimePickerElement > placeholder corresponds to date and time format
                 value=""
               />
             </div>
+            <teleport-stub
+              to="body"
+            >
+              <div
+                class="ab-datetime-picker__calendar--context context visibility-hidden"
+              >
+                <!--v-if-->
+              </div>
+            </teleport-stub>
+            <teleport-stub
+              to="body"
+            >
+              <div
+                class="ab-datetime-picker__clock context visibility-hidden"
+              >
+                <!--v-if-->
+              </div>
+            </teleport-stub>
           </div>
           
           <!--v-if-->
