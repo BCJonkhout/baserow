@@ -121,7 +121,6 @@ import ClearAllNotificationsConfirmModal from '@baserow/modules/core/components/
 
 export default {
   name: 'NotificationPanel',
-  inheritAttrs: false,
   components: {
     ClearAllNotificationsConfirmModal,
     InfiniteScroll,
@@ -132,6 +131,7 @@ export default {
       registerChildContext: this.registerChild,
     }
   },
+  inheritAttrs: false,
   emits: ['hidden', 'shown'],
   data() {
     return {

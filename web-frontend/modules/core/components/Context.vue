@@ -24,7 +24,6 @@ import {
 
 export default {
   name: 'Context',
-  inheritAttrs: false,
   provide() {
     return {
       registerChildContext: this.registerChild,
@@ -36,6 +35,7 @@ export default {
       default: null,
     },
   },
+  inheritAttrs: false,
   props: {
     hideOnClickOutside: {
       type: Boolean,
@@ -84,6 +84,14 @@ export default {
       maxHeightOffset: 10,
       childContexts: [],
     }
+  },
+  mounted() {
+    if (this.parentRegisterChildContext) {
+      this.parentRegisterChildContext(this)
+    }
+  },
+  beforeUnmount() {
+    this.hide(false)
   },
   methods: {
     /**
@@ -558,14 +566,6 @@ export default {
     registerChild(child) {
       this.childContexts.push(child)
     },
-  },
-  mounted() {
-    if (this.parentRegisterChildContext) {
-      this.parentRegisterChildContext(this)
-    }
-  },
-  beforeUnmount() {
-    this.hide(false)
   },
 }
 </script>

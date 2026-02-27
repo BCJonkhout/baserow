@@ -100,8 +100,8 @@ import baseModal from '@baserow/modules/core/mixins/baseModal'
 
 export default {
   name: 'Modal',
-  inheritAttrs: false,
   mixins: [baseModal],
+  inheritAttrs: false,
   props: {
     leftSidebar: {
       type: Boolean,

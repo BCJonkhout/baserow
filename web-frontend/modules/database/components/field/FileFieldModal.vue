@@ -125,11 +125,11 @@ import {
 
 export default {
   name: 'FileFieldModal',
-  inheritAttrs: false,
   components: {
     PreviewAny,
   },
   mixins: [baseModal],
+  inheritAttrs: false,
   props: {
     files: {
       type: Array,
