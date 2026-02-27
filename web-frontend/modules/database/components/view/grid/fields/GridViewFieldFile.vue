@@ -180,10 +180,13 @@ export default {
      * these contexts.
      */
     canUnselectByClickingOutside(event) {
+      const uploadModalWrapper =
+        this.$refs.uploadModal?.$refs?.modal?.$refs?.modalWrapper
+      const fileModalWrapper = this.$refs.fileModal?.$refs?.modalWrapper
       return (
-        (!this.$refs.uploadModal ||
-          !isElement(this.$refs.uploadModal.$el, event.target)) &&
-        !isElement(this.$refs.fileModal.$el, event.target)
+        (!uploadModalWrapper ||
+          !isElement(uploadModalWrapper, event.target)) &&
+        (!fileModalWrapper || !isElement(fileModalWrapper, event.target))
       )
     },
     /**
