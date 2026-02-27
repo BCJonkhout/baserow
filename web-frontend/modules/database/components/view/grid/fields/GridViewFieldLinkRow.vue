@@ -164,6 +164,21 @@ export default {
      * inside the cell, so the system naturally wants to unselect when the user clicks
      * inside one of these contexts.
      */
+    collectModalElements(modal) {
+      const elements = []
+      if (modal.$refs.modalWrapper) {
+        elements.push(modal.$refs.modalWrapper)
+      }
+      for (const child of modal.childContexts) {
+        if (child.$refs.contextEl) {
+          elements.push(child.$refs.contextEl)
+        }
+      }
+      for (const child of modal.childModals) {
+        elements.push(...this.collectModalElements(child))
+      }
+      return elements
+    },
     canUnselectByClickingOutside(event) {
       if (!this.canAccessLinkedTable) {
         return true
@@ -174,31 +189,14 @@ export default {
         this.$refs.rowEditModal.$refs.modal.$refs.modal
 
       const openModals = [
-        selectModal.$refs.modalWrapper,
-        ...selectModal.childContexts.map(
-          (child) => child.$refs.contextEl
-        ),
-        ...selectModal.childModals.map(
-          (child) => child.$refs.modalWrapper
-        ),
-        rowEditModal.$refs.modalWrapper,
-        ...rowEditModal.childContexts.map(
-          (child) => child.$refs.contextEl
-        ),
-        ...rowEditModal.childModals.map(
-          (child) => child.$refs.modalWrapper
-        ),
-      ].filter(Boolean)
+        ...this.collectModalElements(selectModal),
+        ...this.collectModalElements(rowEditModal),
+      ]
 
       return (
-        // If the user clicks inside the select or row edit modal, we don't want to
-        // allow unselecting.
         !openModals.some((modal) => {
           return isElement(modal, event.target)
         }) &&
-        // If an element is not part of the body anymore, then it was deleted, and then
-        // we don't have to unselect. This can for example happen when the user clicks
-        // on something that will deleted because of it.
         document.body.contains(event.target)
       )
     },
