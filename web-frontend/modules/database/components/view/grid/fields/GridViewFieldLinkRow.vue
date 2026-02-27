@@ -185,8 +185,7 @@ export default {
       }
 
       const selectModal = this.$refs.selectModal.$refs.modal
-      const rowEditModal =
-        this.$refs.rowEditModal.$refs.modal.$refs.modal
+      const rowEditModal = this.$refs.rowEditModal.$refs.modal.$refs.modal
 
       const openModals = [
         ...this.collectModalElements(selectModal),
@@ -196,8 +195,7 @@ export default {
       return (
         !openModals.some((modal) => {
           return isElement(modal, event.target)
-        }) &&
-        document.body.contains(event.target)
+        }) && document.body.contains(event.target)
       )
     },
     /**

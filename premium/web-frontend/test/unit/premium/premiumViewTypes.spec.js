@@ -49,7 +49,9 @@ describe('Premium View Type Component Tests', () => {
         .findAllComponents(CreateViewModal)
         .filter((m) => m.vm.$refs.modal.open)
     ).toHaveLength(0)
-    expect(viewsContext.findComponent(PaidFeaturesModal).vm.$refs.modal.open).toBe(true)
+    expect(
+      viewsContext.findComponent(PaidFeaturesModal).vm.$refs.modal.open
+    ).toBe(true)
   })
   test('User with global premium features can create Kanban view', async () => {
     testApp.giveCurrentUserGlobalPremiumFeatures()
@@ -61,8 +63,8 @@ describe('Premium View Type Component Tests', () => {
       .findAllComponents(CreateViewModal)
       .filter((m) => m.vm.$refs.modal.open)
     expect(visibleCreateViewModals).toHaveLength(1)
-    expect(viewsContext.findComponent(PaidFeaturesModal).vm.$refs.modal.open).toBe(
-      false
-    )
+    expect(
+      viewsContext.findComponent(PaidFeaturesModal).vm.$refs.modal.open
+    ).toBe(false)
   })
 })
