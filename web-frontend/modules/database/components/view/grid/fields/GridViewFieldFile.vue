@@ -184,8 +184,7 @@ export default {
         this.$refs.uploadModal?.$refs?.modal?.$refs?.modalWrapper
       const fileModalWrapper = this.$refs.fileModal?.$refs?.modalWrapper
       return (
-        (!uploadModalWrapper ||
-          !isElement(uploadModalWrapper, event.target)) &&
+        (!uploadModalWrapper || !isElement(uploadModalWrapper, event.target)) &&
         (!fileModalWrapper || !isElement(fileModalWrapper, event.target))
       )
     },
