@@ -14,9 +14,13 @@ class AutomationWorkflowGraphHandler(BaseGraphHandler):
     the graph of an automation workflow.
     """
 
+    base_point_class = AutomationNode
     outputs_id_mapping = "automation_edge_outputs"
     instance_id_mapping = "automation_workflow_nodes"
     does_not_exist_exception = AutomationNodeDoesNotExist
 
     def get_point_map(self) -> Dict[int, AutomationNode]:
-        return {n.id: n for n in AutomationNodeHandler().get_nodes(self.instance)}
+        return {
+            n.id: n
+            for n in AutomationNodeHandler().get_nodes(self.instance, with_cache=False)
+        }
