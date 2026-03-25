@@ -22,9 +22,12 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
       throw e
     }
 
-    throw createError({
-      statusCode: 404,
-      message: $i18n.t('pageEditor.pageNotFound'),
-    })
+    return abortNavigation(
+      createError({
+        statusCode: 404,
+        message: $i18n.t('pageEditor.pageNotFound'),
+        fatal: true,
+      })
+    )
   }
 })

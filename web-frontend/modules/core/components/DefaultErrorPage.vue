@@ -1,7 +1,10 @@
 <template>
   <div v-if="!redirecting" class="placeholder">
     <div class="placeholder__logo">
-      <nuxt-link :to="{ name: 'index' }">
+      <nuxt-link
+        :to="{ name: 'index' }"
+        @click.prevent="clearAndNavigate({ name: 'index' })"
+      >
         <Logo class="placeholder__logo-image" />
       </nuxt-link>
     </div>
@@ -17,8 +20,8 @@
         icon="iconoir-redo"
         @click="refresh"
       >
-        {{ $t('errorLayout.refresh') }}</Button
-      >
+        {{ $t('errorLayout.refresh') }}
+      </Button>
 
       <Button
         v-else-if="isAuthenticated && currentRouteName !== 'dashboard'"
@@ -27,6 +30,7 @@
         type="primary"
         size="large"
         icon="iconoir-nav-arrow-left"
+        @click.prevent="clearAndNavigate({ name: 'dashboard' })"
       >
         {{ $t('errorLayout.backDashboard') }}
       </Button>
@@ -38,15 +42,17 @@
         type="primary"
         size="large"
         icon="iconoir-nav-arrow-left"
+        @click.prevent="clearAndNavigate({ name: 'login' })"
       >
-        {{ $t('errorLayout.backLogin') }}</Button
-      >
+        {{ $t('errorLayout.backLogin') }}
+      </Button>
     </div>
   </div>
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
+import { clearError } from '#app'
 import { logoutAndRedirectToLogin } from '@baserow/modules/core/utils/auth'
 
 export default {
@@ -99,6 +105,9 @@ export default {
     }
   },
   methods: {
+    async clearAndNavigate(to) {
+      await clearError({ redirect: this.$router.resolve(to).fullPath })
+    },
     refresh() {
       location.reload()
     },

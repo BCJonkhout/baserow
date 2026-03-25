@@ -12,6 +12,8 @@ export default defineNuxtRouteMiddleware(() => {
 
   // If the user is not staff we want to show a forbidden error.
   if (!$store.getters['auth/isStaff']) {
-    throw createError({ statusCode: 403, message: 'Forbidden.' })
+    return abortNavigation(
+      createError({ statusCode: 403, message: 'Forbidden.', fatal: true })
+    )
   }
 })

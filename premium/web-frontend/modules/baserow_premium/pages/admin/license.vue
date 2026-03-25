@@ -228,6 +228,7 @@ const { data, error } = await useAsyncData(
       throw createError({
         statusCode: 404,
         message: 'The license was not found.',
+        fatal: true,
       })
     }
   }

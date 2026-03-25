@@ -44,10 +44,11 @@ if (!$hasFeature(EnterpriseFeatures.DATA_SCANNER)) {
   throw createError({
     statusCode: 401,
     message: 'Available in the enterprise version',
+    fatal: true,
   })
 }
 
 if (!store.getters['auth/isStaff']) {
-  throw createError({ statusCode: 403, message: 'Forbidden.' })
+  throw createError({ statusCode: 403, message: 'Forbidden.', fatal: true })
 }
 </script>

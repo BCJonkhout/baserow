@@ -7,6 +7,12 @@
           params: { pathMatch: '' },
         }"
         custom
+        @click.prevent="
+          clearAndNavigate({
+            name: routeName,
+            params: { pathMatch: '' },
+          })
+        "
       >
         <Logo class="placeholder__logo-image" />
       </nuxt-link>
@@ -25,6 +31,8 @@
 </template>
 
 <script>
+import { clearError } from '#app'
+
 export default {
   props: {
     error: {
@@ -57,7 +65,10 @@ export default {
     },
   },
   methods: {
-    onHome() {
+    async clearAndNavigate(to) {
+      await clearError({ redirect: this.$router.resolve(to).fullPath })
+    },
+    async onHome() {
       if (
         ['application-builder-page', 'application-builder-preview'].includes(
           this.routeName
@@ -68,7 +79,7 @@ export default {
           this.$router.go(0)
         } else {
           // Navigate to the home route
-          this.$router.push({
+          await this.clearAndNavigate({
             name: this.routeName,
             params: { pathMatch: '' },
             query: null, // Remove query parameters

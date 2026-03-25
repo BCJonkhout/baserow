@@ -22,10 +22,13 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
   } catch (e) {
     if (e.response === undefined && !(e instanceof StoreItemLookupError))
       throw e
-    throw createError({
-      statusCode: e.response?.status || 404,
-      message: normalizeError(e).message,
-    })
+    return abortNavigation(
+      createError({
+        statusCode: e.response?.status || 404,
+        message: normalizeError(e).message,
+        fatal: true,
+      })
+    )
   }
 
   // Fetch views only if the table has changed because there is no need

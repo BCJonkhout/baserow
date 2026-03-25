@@ -64,6 +64,7 @@ const {
         throw createError({
           statusCode: 404,
           message: $i18n.t('pageEditor.pageNotFound'),
+          fatal: true,
         })
       }
 
@@ -98,6 +99,7 @@ const {
       throw createError({
         statusCode: 404,
         message: $i18n.t('pageEditor.pageNotFound'),
+        fatal: true,
       })
     }
   }

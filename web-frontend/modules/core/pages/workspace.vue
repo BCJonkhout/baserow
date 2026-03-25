@@ -321,6 +321,7 @@ const {
       throw createError({
         statusCode: 404,
         message: 'Workspace not found.',
+        fatal: true,
       })
     }
 
@@ -331,6 +332,7 @@ const {
       throw createError({
         statusCode: 400,
         message: 'Error loading dashboard.',
+        fatal: true,
       })
     }
   }

@@ -49,7 +49,11 @@ const { data: workspace, error } = await useAsyncData('workspace', async () => {
       parseInt(route.params.workspaceId, 10)
     )
   } catch (e) {
-    throw createError({ statusCode: 404, message: 'Workspace not found.' })
+    throw createError({
+      statusCode: 404,
+      message: 'Workspace not found.',
+      fatal: true,
+    })
   }
 })
 

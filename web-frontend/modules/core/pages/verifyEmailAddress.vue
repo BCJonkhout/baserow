@@ -68,11 +68,13 @@ const { data: result, error } = await useAsyncData('verify-email', async () => {
           throw createError({
             statusCode: 401,
             message: t('error.disabledAccountMessage'),
+            fatal: true,
           })
         } else if (response.data?.error === 'ERROR_AUTH_PROVIDER_DISABLED') {
           throw createError({
             statusCode: 401,
             message: t('verifyEmailAddress.disabledPasswordProvider'),
+            fatal: true,
           })
         }
       }
@@ -80,6 +82,7 @@ const { data: result, error } = await useAsyncData('verify-email', async () => {
     throw createError({
       statusCode: 404,
       message: t('verifyEmailAddress.invalidToken'),
+      fatal: true,
     })
   }
 })

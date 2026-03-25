@@ -4,6 +4,26 @@
       <Toasts></Toasts>
       <div class="style-guide">
         <div class="margin-bottom-3">
+          <div>
+            <nuxt-link
+              :to="{
+                name: 'builder-page',
+                params: {
+                  builderId: 99,
+                  pageId: 99,
+                },
+              }"
+            >
+              <Button type="primary" size="small"> To missing page </Button>
+            </nuxt-link>
+          </div>
+          <div>
+            <Button type="primary" size="small" @click="triggerError">
+              Trigger code error
+            </Button>
+          </div>
+        </div>
+        <div class="margin-bottom-3">
           <h1>&lt;h1&gt;Heading 1&lt;/h1&gt;</h1>
           <h2>&lt;h2&gt;Heading 2&lt;/h2&gt;</h2>
           <h3>&lt;h3&gt;Heading 3&lt;/h3&gt;</h3>
@@ -592,7 +612,7 @@
             </template>
           </Alert>
 
-          <Alert type="danger" close-button>
+          <Alert type="error" close-button>
             <template #title>Alert title</template>
             <template #actions>
               <button
@@ -2019,6 +2039,9 @@ export default {
     resolveColor,
     alert(message) {
       alert(message)
+    },
+    triggerError() {
+      throw new Error('Fake unexpected error')
     },
   },
 }

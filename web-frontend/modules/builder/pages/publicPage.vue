@@ -98,6 +98,7 @@ const {
         throw createError({
           statusCode: 404,
           message: $i18n.t('publicPage.siteNotFound'),
+          fatal: true,
         })
       }
 
@@ -174,6 +175,7 @@ const {
           throw createError({
             statusCode: authError.code,
             message: authError.message,
+            fatal: true,
           })
         }
       }
@@ -191,6 +193,7 @@ const {
       throw createError({
         statusCode: 404,
         message: $i18n.t('publicPage.pageNotFound'),
+        fatal: true,
       })
     }
 
@@ -200,6 +203,7 @@ const {
       throw createError({
         statusCode: 404,
         message: $i18n.t('publicPage.pageNotFound'),
+        fatal: true,
       })
     }
 
@@ -239,6 +243,7 @@ const {
         throw createError({
           statusCode: 404,
           statusMessage: $i18n.t('publicPage.pageNotFound'),
+          fatal: true,
         })
       } else {
         throw error

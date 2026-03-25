@@ -107,6 +107,7 @@ const { data: pageData, error } = await useAsyncData(
       throw createError({
         statusCode: 404,
         message: 'Automation workflow not found.',
+        fatal: true,
       })
     }
   }
