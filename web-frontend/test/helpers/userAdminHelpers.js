@@ -5,7 +5,6 @@ import EditUserModal from '@baserow/modules/core/components/admin/users/modals/E
 import UserForm from '@baserow/modules/core/components/admin/users/forms/UserForm'
 import CrudTableSearch from '@baserow/modules/core/components/crudTable/CrudTableSearch'
 import DeleteUserModal from '@baserow/modules/core/components/admin/users/modals/DeleteUserModal'
-import Checkbox from '@baserow/modules/core/components/Checkbox'
 import { expect } from 'vitest'
 import { flushPromises } from '@vue/test-utils'
 
@@ -192,11 +191,11 @@ export default class UserAdminUserHelpers {
 
     const editUserModal = this.c.findComponent(EditUserModal)
     const userForm = editUserModal.findComponent(UserForm)
-    const checkboxComponents = userForm.findAllComponents(Checkbox)
+    const checkboxInputs = userForm.findAll('input[type="checkbox"]')
 
-    const cb = checkboxComponents[checkboxIndex]
-    const currentVal = cb.props('modelValue')
-    cb.vm.$emit('update:modelValue', !currentVal)
+    const input = checkboxInputs[checkboxIndex]
+    input.element.checked = !input.element.checked
+    await input.trigger('change')
     await flushPromises()
 
     await editUserModal.find('form').trigger('submit')
