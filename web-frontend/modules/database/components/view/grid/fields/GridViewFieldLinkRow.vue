@@ -158,27 +158,25 @@ export default {
     beforeUnSelect() {
       document.body.removeEventListener('keydown', this.keydownEvent)
     },
+    collectModalElements(component) {
+      const elements = []
+      if (component.$refs.modalWrapper) {
+        elements.push(component.$refs.modalWrapper)
+      }
+      if (component.$refs.contextEl) {
+        elements.push(component.$refs.contextEl)
+      }
+      for (const child of component.children || []) {
+        elements.push(...this.collectModalElements(child))
+      }
+      return elements
+    },
     /**
      * If the user clicks inside the select row or file modal we do not want to
      * unselect the field. The modals lives in the root of the body element and not
      * inside the cell, so the system naturally wants to unselect when the user clicks
      * inside one of these contexts.
      */
-    collectModalElements(modal) {
-      const elements = []
-      if (modal.$refs.modalWrapper) {
-        elements.push(modal.$refs.modalWrapper)
-      }
-      for (const child of modal.childContexts) {
-        if (child.$refs.contextEl) {
-          elements.push(child.$refs.contextEl)
-        }
-      }
-      for (const child of modal.childModals) {
-        elements.push(...this.collectModalElements(child))
-      }
-      return elements
-    },
     canUnselectByClickingOutside(event) {
       if (!this.canAccessLinkedTable) {
         return true
