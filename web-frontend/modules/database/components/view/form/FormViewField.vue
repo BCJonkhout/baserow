@@ -318,7 +318,10 @@ export default {
             // If the event was not related to deleting the filter.
             !event.deletedFilterEvent &&
             !this.children.some((child) => {
-              return child.$refs.contextEl && isElement(child.$refs.contextEl, target)
+              return (
+                child.$refs.contextEl &&
+                isElement(child.$refs.contextEl, target)
+              )
             })
           ) {
             this.unselect()
