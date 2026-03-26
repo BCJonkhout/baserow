@@ -26,12 +26,12 @@ export default {
   name: 'Context',
   provide() {
     return {
-      registerChildContext: this.registerChild,
+      registerChild: this.registerChild,
     }
   },
   inject: {
-    parentRegisterChildContext: {
-      from: 'registerChildContext',
+    parentRegisterChild: {
+      from: 'registerChild',
       default: null,
     },
   },
@@ -82,12 +82,12 @@ export default {
       // If opened once, should stay in DOM to keep nested content
       openedOnce: false,
       maxHeightOffset: 10,
-      childContexts: [],
+      children: [],
     }
   },
   mounted() {
-    if (this.parentRegisterChildContext) {
-      this.parentRegisterChildContext(this)
+    if (this.parentRegisterChild) {
+      this.parentRegisterChild(this)
     }
   },
   beforeUnmount() {
@@ -226,8 +226,11 @@ export default {
           this.open &&
           this.hideOnClickOutside &&
           !isElement(this.opener, clickTarget) &&
-          !this.childContexts.some((child) => {
-            return isElement(child.$refs.contextEl, clickTarget)
+          !this.children.some((child) => {
+            return (
+              child.$refs.contextEl &&
+              isElement(child.$refs.contextEl, clickTarget)
+            )
           })
         ) {
           this.hide()
@@ -239,8 +242,11 @@ export default {
           this.hide()
         } else if (
           !isElement(this.$refs.contextEl, event.target) &&
-          !this.childContexts.some((child) => {
-            return isElement(child.$refs.contextEl, event.target)
+          !this.children.some((child) => {
+            return (
+              child.$refs.contextEl &&
+              isElement(child.$refs.contextEl, event.target)
+            )
           })
         ) {
           updatePosition()
@@ -562,7 +568,7 @@ export default {
       return this.open
     },
     registerChild(child) {
-      this.childContexts.push(child)
+      this.children.push(child)
     },
   },
 }

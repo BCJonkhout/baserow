@@ -2,13 +2,12 @@ export default {
   mixins: [],
   provide() {
     return {
-      registerChildModal: this.registerChildModal,
-      registerChildContext: this.registerChildContext,
+      registerChild: this.registerChild,
     }
   },
   inject: {
     parentRegisterModal: {
-      from: 'registerChildModal',
+      from: 'registerChild',
       default: null,
     },
   },
@@ -21,8 +20,7 @@ export default {
       // variable to be set on mousedown to be consistent.
       downElement: null,
       isModal: true,
-      childModals: [],
-      childContexts: [],
+      children: [],
     }
   },
   props: {
@@ -88,14 +86,13 @@ export default {
         return
       }
 
-      const hasOpenModalAsChild =
-        this.childModals.some((child) => child.open === true) ||
-        this.childContexts.some((child) => child.open === true)
+      const hasOpenChild = this.children.some((child) => child.open === true)
 
       // When the `esc` key is pressed and multiple modals are open, then we don't
       // want to close them all. Only last opened modal should close. This will make
-      // sure that if there is an open child modal, it will not hide the parent modal.
-      if (hasOpenModalAsChild) {
+      // sure that if there is an open child (modal or context), it will not hide
+      // the parent modal.
+      if (hasOpenChild) {
         return
       }
 
@@ -121,11 +118,8 @@ export default {
         this.$emit('hidden')
       }
     },
-    registerChildModal(modal) {
-      this.childModals.push(modal)
-    },
-    registerChildContext(child) {
-      this.childContexts.push(child)
+    registerChild(child) {
+      this.children.push(child)
     },
     /**
      * If someone actually clicked on the modal wrapper and not one of his children the
