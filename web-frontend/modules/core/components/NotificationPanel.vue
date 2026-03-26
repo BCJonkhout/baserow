@@ -128,7 +128,7 @@ export default {
   mixins: [],
   provide() {
     return {
-      registerChildContext: this.registerChild,
+      registerChild: this.registerChild,
     }
   },
   inheritAttrs: false,
@@ -138,7 +138,7 @@ export default {
       open: false,
       needRefresh: false,
       removeOnClickOutsideHandler: null,
-      childContexts: [],
+      children: [],
     }
   },
   computed: {
@@ -198,7 +198,7 @@ export default {
           if (
             this.open &&
             !isElement(opener, target) &&
-            !this.childContexts.some((child) => {
+            !this.children.some((child) => {
               const el = child.$refs?.contextEl || child.$refs?.panelEl
               return el && isElement(el, target)
             })
@@ -210,7 +210,7 @@ export default {
       this.$emit('shown')
     },
     registerChild(child) {
-      this.childContexts.push(child)
+      this.children.push(child)
     },
     hide() {
       this.open = false

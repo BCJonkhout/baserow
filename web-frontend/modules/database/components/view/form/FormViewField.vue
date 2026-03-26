@@ -199,7 +199,7 @@ export default {
   components: { ViewFieldConditionsForm },
   provide() {
     return {
-      registerChildContext: this.registerChildContext,
+      registerChild: this.registerChild,
     }
   },
   props: {
@@ -244,7 +244,7 @@ export default {
       editingName: false,
       editingDescription: false,
       value: null,
-      childContexts: [],
+      children: [],
     }
   },
   computed: {
@@ -317,8 +317,8 @@ export default {
             this.selected &&
             // If the event was not related to deleting the filter.
             !event.deletedFilterEvent &&
-            !this.childContexts.some((child) => {
-              return isElement(child.$refs.contextEl, target)
+            !this.children.some((child) => {
+              return child.$refs.contextEl && isElement(child.$refs.contextEl, target)
             })
           ) {
             this.unselect()
@@ -507,8 +507,8 @@ export default {
         })
       })
     },
-    registerChildContext(child) {
-      this.childContexts.push(child)
+    registerChild(child) {
+      this.children.push(child)
     },
   },
 }

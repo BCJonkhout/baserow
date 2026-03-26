@@ -158,15 +158,17 @@ export default {
     beforeUnSelect() {
       document.body.removeEventListener('keydown', this.keydownEvent)
     },
-    collectModalElements(component) {
+    collectModalElements(modal) {
       const elements = []
-      if (component.$refs.modalWrapper) {
-        elements.push(component.$refs.modalWrapper)
+      if (modal.$refs.modalWrapper) {
+        elements.push(modal.$refs.modalWrapper)
       }
-      if (component.$refs.contextEl) {
-        elements.push(component.$refs.contextEl)
+      for (const child of modal.childContexts) {
+        if (child.$refs.contextEl) {
+          elements.push(child.$refs.contextEl)
+        }
       }
-      for (const child of component.children || []) {
+      for (const child of modal.childModals) {
         elements.push(...this.collectModalElements(child))
       }
       return elements
