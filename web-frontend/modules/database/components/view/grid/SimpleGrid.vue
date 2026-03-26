@@ -68,6 +68,7 @@
                 currentHoveredRow === row.id || selectedRows.includes(row.id)
               "
               class="simple-grid__cell-checkbox"
+              @click.stop.prevent="$emit('row-click', row)"
             >
               <Checkbox
                 :checked="selectedRows.includes(row.id)"
