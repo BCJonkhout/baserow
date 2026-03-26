@@ -154,8 +154,6 @@ export default {
       const isElementOrigin = isDomElement(target)
       const updatePosition = () => {
         const el = this.$refs.contextEl
-        if (!el) return
-
         const css = isElementOrigin
           ? this.calculatePositionElement(
               target,
