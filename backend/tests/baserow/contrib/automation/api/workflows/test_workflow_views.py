@@ -591,6 +591,8 @@ def test_get_workflow_histories(api_client, data_fixture):
     assert response.status_code == HTTP_200_OK
     assert response.json() == {
         "count": 1,
+        "fail_count": 0,
+        "success_count": 1,
         "next": None,
         "previous": None,
         "results": [
@@ -601,6 +603,9 @@ def test_get_workflow_histories(api_client, data_fixture):
                 "is_test_run": False,
                 "message": "",
                 "status": "success",
+                "event_payload": None,
+                "node_histories": [],
+                "simulate_until_node": None,
             },
         ],
     }
