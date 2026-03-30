@@ -3,11 +3,16 @@ export default {
   provide() {
     return {
       registerChild: this.registerChild,
+      unregisterChild: this.unregisterChild,
     }
   },
   inject: {
     parentRegisterModal: {
       from: 'registerChild',
+      default: null,
+    },
+    parentUnregisterModal: {
+      from: 'unregisterChild',
       default: null,
     },
   },
@@ -40,6 +45,9 @@ export default {
   beforeUnmount() {
     this.$bus.$off('close-modals', this.hide)
     window.removeEventListener('keyup', this.keyup)
+    if (this.parentUnregisterModal) {
+      this.parentUnregisterModal(this)
+    }
   },
   methods: {
     /**
@@ -120,6 +128,12 @@ export default {
     },
     registerChild(child) {
       this.children.push(child)
+    },
+    unregisterChild(child) {
+      const index = this.children.indexOf(child)
+      if (index !== -1) {
+        this.children.splice(index, 1)
+      }
     },
     /**
      * If someone actually clicked on the modal wrapper and not one of his children the

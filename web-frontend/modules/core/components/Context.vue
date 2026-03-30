@@ -27,11 +27,16 @@ export default {
   provide() {
     return {
       registerChild: this.registerChild,
+      unregisterChild: this.unregisterChild,
     }
   },
   inject: {
     parentRegisterChild: {
       from: 'registerChild',
+      default: null,
+    },
+    parentUnregisterChild: {
+      from: 'unregisterChild',
       default: null,
     },
   },
@@ -91,6 +96,9 @@ export default {
     }
   },
   beforeUnmount() {
+    if (this.parentUnregisterChild) {
+      this.parentUnregisterChild(this)
+    }
     this.hide(false)
   },
   methods: {
@@ -221,17 +229,36 @@ export default {
       this._cleanupEventHandlers()
 
       const el = this.$refs.contextEl
+
+      // Snapshot whether the mousedown target is inside a child element at mousedown
+      // time. This is necessary because optimistic Vuex actions can unmount child
+      // components (e.g. a "delete" action removes the DataSourceItem) between the
+      // mousedown and the body click event via Vue's microtask scheduler, making
+      // $refs.contextEl null by click time even though the click started inside the child.
+      this._mousedownInsideChild = false
+      this._mousedownChildSnapshotHandler = (event) => {
+        if (!isElement(el, event.target)) {
+          this._mousedownInsideChild = this._isClickInsideChildTree(
+            this.children,
+            event.target
+          )
+        }
+      }
+      document.body.addEventListener('mousedown', this._mousedownChildSnapshotHandler)
+
       this._cancelOnClickOutside = onClickOutside(el, (clickTarget) => {
+        const insideChildTree = this._isClickInsideChildTree(
+          this.children,
+          clickTarget
+        )
+        const mousedownInsideChild = this._mousedownInsideChild
+        this._mousedownInsideChild = false
         if (
           this.open &&
           this.hideOnClickOutside &&
           !isElement(this.opener, clickTarget) &&
-          !this.children.some((child) => {
-            return (
-              child.$refs.contextEl &&
-              isElement(child.$refs.contextEl, clickTarget)
-            )
-          })
+          !insideChildTree &&
+          !mousedownInsideChild
         ) {
           this.hide()
         }
@@ -338,6 +365,14 @@ export default {
       if (this._cancelOnClickOutside) {
         this._cancelOnClickOutside()
         this._cancelOnClickOutside = null
+      }
+      if (this._mousedownChildSnapshotHandler) {
+        document.body.removeEventListener(
+          'mousedown',
+          this._mousedownChildSnapshotHandler
+        )
+        this._mousedownChildSnapshotHandler = null
+        this._mousedownInsideChild = false
       }
       if (this._updatePositionViaScrollEvent) {
         window.removeEventListener(
@@ -567,8 +602,31 @@ export default {
     isOpen() {
       return this.open
     },
+    /**
+     * Recursively checks whether a click target is contained within any child
+     * or descendant child's element. This handles the case where a Context or
+     * Modal child teleports its own DOM separately to <body> (e.g.
+     * FormulaInputContext inside a Modal), meaning the click won't be found in
+     * the direct child's element but will be found in a grandchild's element.
+     */
+    _isClickInsideChildTree(children, target) {
+      return children.some((child) => {
+        const childEl = child.$refs.contextEl || child.$refs.modalWrapper
+        if (childEl && isElement(childEl, target)) return true
+        if (child.children && child.children.length > 0) {
+          return this._isClickInsideChildTree(child.children, target)
+        }
+        return false
+      })
+    },
     registerChild(child) {
       this.children.push(child)
+    },
+    unregisterChild(child) {
+      const index = this.children.indexOf(child)
+      if (index !== -1) {
+        this.children.splice(index, 1)
+      }
     },
   },
 }
