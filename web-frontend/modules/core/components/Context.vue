@@ -244,7 +244,10 @@ export default {
           )
         }
       }
-      document.body.addEventListener('mousedown', this._mousedownChildSnapshotHandler)
+      document.body.addEventListener(
+        'mousedown',
+        this._mousedownChildSnapshotHandler
+      )
 
       this._cancelOnClickOutside = onClickOutside(el, (clickTarget) => {
         const insideChildTree = this._isClickInsideChildTree(
