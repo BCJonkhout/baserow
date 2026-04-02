@@ -52,6 +52,9 @@ const { data: workspace, error } = await useAsyncData('workspace', async () => {
     throw createError({
       statusCode: 404,
       message: 'Workspace not found.',
+      data: {
+        report: false,
+      },
       fatal: true,
     })
   }

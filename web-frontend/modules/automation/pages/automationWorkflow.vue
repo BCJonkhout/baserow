@@ -104,9 +104,20 @@ const { data: pageData, error } = await useAsyncData(
         workflow,
       }
     } catch (e) {
+      const statusCode = e.response?.status
+      if (statusCode === 404) {
+        throw createError({
+          statusCode: 404,
+          message: 'Automation workflow not found.',
+          data: {
+            report: false,
+          },
+          fatal: true,
+        })
+      }
       throw createError({
-        statusCode: 404,
-        message: 'Automation workflow not found.',
+        statusCode: statusCode,
+        message: 'Something went wrong while fetching the workflow.',
         fatal: true,
       })
     }

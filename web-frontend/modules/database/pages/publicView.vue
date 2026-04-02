@@ -133,6 +133,9 @@ const { data, error } = await useAsyncData(
         throw createError({
           statusCode: 404,
           message: 'View not found.',
+          data: {
+            report: false,
+          },
           fatal: true,
         })
       } else {

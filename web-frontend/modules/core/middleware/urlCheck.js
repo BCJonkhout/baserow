@@ -35,7 +35,6 @@ export default defineNuxtRouteMiddleware(() => {
           hideBackButton: true,
           message: translate('urlCheck.invalidUrlEnvVarTitle', { name }),
           content: translate('urlCheck.invalidUrlEnvVarDescription', { name }),
-          fatal: true,
         })
       }
     }

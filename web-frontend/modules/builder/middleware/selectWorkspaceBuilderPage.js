@@ -26,6 +26,9 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
       createError({
         statusCode: 404,
         message: $i18n.t('pageEditor.pageNotFound'),
+        data: {
+          report: false,
+        },
         fatal: true,
       })
     )

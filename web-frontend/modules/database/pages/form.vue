@@ -113,6 +113,9 @@ const { data, error } = await useAsyncData(
         throw createError({
           statusCode: 404,
           message: 'Form not found.',
+          data: {
+            report: false,
+          },
           fatal: true,
         })
       }
@@ -176,6 +179,9 @@ const { data, error } = await useAsyncData(
           throw createError({
             statusCode: 404,
             message: 'Invalid edit token.',
+            data: {
+              report: false,
+            },
             fatal: true,
           })
         }

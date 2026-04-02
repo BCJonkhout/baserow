@@ -161,6 +161,9 @@ if (workspaceId) {
     throw createError({
       statusCode: 401,
       message: 'Available in the advanced/enterprise version',
+      data: {
+        report: false,
+      },
       fatal: true,
     })
   } else if (
@@ -173,6 +176,9 @@ if (workspaceId) {
     throw createError({
       statusCode: 404,
       message: 'Page not found',
+      data: {
+        report: false,
+      },
       fatal: true,
     })
   }
@@ -180,10 +186,20 @@ if (workspaceId) {
   throw createError({
     statusCode: 401,
     message: 'Available in the advanced/enterprise version',
+    data: {
+      report: false,
+    },
     fatal: true,
   })
 } else if (!store.getters['auth/isStaff']) {
-  throw createError({ statusCode: 403, message: 'Forbidden.', fatal: true })
+  throw createError({
+    statusCode: 403,
+    message: 'Forbidden.',
+    data: {
+      report: false,
+    },
+    fatal: true,
+  })
 }
 
 // Template refs
