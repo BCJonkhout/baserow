@@ -110,6 +110,10 @@ class AutomationNodeHistorySerializer(AutomationHistorySerializer):
             "result",
         )
 
+    def _get_first_node_result(self, obj):
+        results = obj.node_results.all()
+        return results[0] if results else None
+
     @extend_schema_field(OpenApiTypes.INT)
     def get_parent_node_id(self, obj):
         parent_nodes = obj.node.get_parent_nodes()
@@ -119,7 +123,7 @@ class AutomationNodeHistorySerializer(AutomationHistorySerializer):
 
     @extend_schema_field(OpenApiTypes.INT)
     def get_iteration(self, obj):
-        result = obj.node_results.first()
+        result = self._get_first_node_result(obj)
         if result is None:
             return None
 
@@ -129,9 +133,8 @@ class AutomationNodeHistorySerializer(AutomationHistorySerializer):
         return 0
 
     def get_result(self, obj):
-        if result := obj.node_results.first():
-            return result.result
-        return {}
+        result = self._get_first_node_result(obj)
+        return result.result if result else {}
 
 
 class AutomationWorkflowHistorySerializer(AutomationHistorySerializer):
