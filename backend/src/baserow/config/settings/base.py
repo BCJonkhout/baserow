@@ -1371,8 +1371,11 @@ SENTRY_DSN = SENTRY_BACKEND_DSN or os.getenv("SENTRY_DSN")
 if SENTRY_DSN:
     import sentry_sdk
     import sentry_sdk.integrations as _sentry_integrations
+    from loguru import logger
     from sentry_sdk.integrations.django import DjangoIntegration
     from sentry_sdk.scrubber import DEFAULT_DENYLIST, EventScrubber
+
+    from baserow.core.sentry import ConsoleSentryTransport
 
     # Exclude integrations whose module-level imports are incompatible:
     # - pydantic_ai: sentry-sdk patches ToolManager._call_tool which was
@@ -1385,6 +1388,14 @@ if SENTRY_DSN:
     ]
 
     SENTRY_DENYLIST = DEFAULT_DENYLIST + ["username", "email", "name"]
+    sentry_transport = None
+
+    if SENTRY_DSN == "fake":
+        logger.info(
+            "[SENTRY] Using fake backend Sentry DSN, events will be logged to the "
+            "console."
+        )
+        sentry_transport = ConsoleSentryTransport()
 
     sentry_sdk.init(
         dsn=SENTRY_DSN,
@@ -1392,6 +1403,7 @@ if SENTRY_DSN:
         send_default_pii=False,
         event_scrubber=EventScrubber(recursive=True, denylist=SENTRY_DENYLIST),
         environment=os.getenv("SENTRY_ENVIRONMENT", ""),
+        transport=sentry_transport,
     )
 else:
     BASEROW_LAZY_LOADED_LIBRARIES.append("sentry_sdk")
