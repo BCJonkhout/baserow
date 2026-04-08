@@ -147,11 +147,7 @@ export default {
       default: '',
     },
   },
-<<<<<<< HEAD
-  emits: ['hide', 'unselected', 'selected'],
-=======
   emits: ['hide', 'selected', 'unselected'],
->>>>>>> 1619b23494 (Enhance SelectRowContent component to emit 'selected' and 'unselected' events. Refactor modal element collection logic in GridViewFieldLinkRow to improve clarity and reduce redundancy.)
   data() {
     return {
       // Indicates if we're loading new rows.
