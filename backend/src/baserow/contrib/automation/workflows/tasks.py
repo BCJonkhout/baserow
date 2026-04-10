@@ -1,5 +1,7 @@
+from datetime import timedelta
 from typing import Optional
 
+from django.conf import settings
 from django.utils import timezone
 
 from celery.canvas import Signature
@@ -8,6 +10,7 @@ from baserow.config.celery import app
 from baserow.contrib.automation.history.constants import HistoryStatusChoices
 from baserow.contrib.automation.history.handler import AutomationHistoryHandler
 from baserow.contrib.automation.history.models import AutomationWorkflowHistory
+from baserow.contrib.automation.workflows.models import AutomationWorkflow
 from baserow.core.db import atomic_with_retry_on_deadlock
 
 
@@ -66,3 +69,27 @@ def handle_workflow_dispatch_done(
             status=HistoryStatusChoices.SUCCESS,
             completed_on=timezone.now(),
         )
+
+
+@app.task(queue="automation_workflow")
+def clear_old_automation_history():
+    from baserow.contrib.automation.workflows.handler import AutomationWorkflowHandler
+
+    handler = AutomationWorkflowHandler()
+    for workflow in AutomationWorkflow.objects.all():
+        # If we have history entries that are too old it probably means
+        # something went wrong with Celery so we mark these entries as failed.
+        handler._mark_failure_for_timed_out_history(workflow)
+
+        # We remove old history entries to avoid storing too many entries.
+        handler._clear_old_history(workflow)
+
+
+@app.on_after_finalize.connect
+def setup_periodic_automation_tasks(sender, **kwargs):
+    sender.add_periodic_task(
+        timedelta(
+            minutes=settings.AUTOMATION_WORKFLOW_HISTORY_CLEANUP_INTERVAL_MINUTES
+        ),
+        clear_old_automation_history.s(),
+    )
