@@ -230,42 +230,22 @@ export default {
 
       const el = this.$refs.contextEl
 
-      // Snapshot whether the mousedown target is inside a child element at mousedown
-      // time. This is necessary because optimistic Vuex actions can unmount child
-      // components (e.g. a "delete" action removes the DataSourceItem) between the
-      // mousedown and the body click event via Vue's microtask scheduler, making
-      // $refs.contextEl null by click time even though the click started inside the child.
-      this._mousedownInsideChild = false
-      this._mousedownChildSnapshotHandler = (event) => {
-        if (!isElement(el, event.target)) {
-          this._mousedownInsideChild = this._isClickInsideChildTree(
-            this.children,
-            event.target
-          )
-        }
+      const ignoreElements = () => {
+        const childRoots = this._collectChildContextRoots(this.children)
+        return [this.opener, ...childRoots].filter(Boolean)
       }
-      document.body.addEventListener(
-        'mousedown',
-        this._mousedownChildSnapshotHandler
-      )
 
-      this._cancelOnClickOutside = onClickOutside(el, (clickTarget) => {
-        const insideChildTree = this._isClickInsideChildTree(
-          this.children,
-          clickTarget
-        )
-        const mousedownInsideChild = this._mousedownInsideChild
-        this._mousedownInsideChild = false
-        if (
-          this.open &&
-          this.hideOnClickOutside &&
-          !isElement(this.opener, clickTarget) &&
-          !insideChildTree &&
-          !mousedownInsideChild
-        ) {
-          this.hide()
+      this._cancelOnClickOutside = onClickOutside(
+        el,
+        () => {
+          if (this.open && this.hideOnClickOutside) {
+            this.hide()
+          }
+        },
+        {
+          ignoreElements,
         }
-      })
+      )
 
       this._updatePositionViaScrollEvent = (event) => {
         if (this.hideOnScroll) {
@@ -368,14 +348,6 @@ export default {
       if (this._cancelOnClickOutside) {
         this._cancelOnClickOutside()
         this._cancelOnClickOutside = null
-      }
-      if (this._mousedownChildSnapshotHandler) {
-        document.body.removeEventListener(
-          'mousedown',
-          this._mousedownChildSnapshotHandler
-        )
-        this._mousedownChildSnapshotHandler = null
-        this._mousedownInsideChild = false
       }
       if (this._updatePositionViaScrollEvent) {
         window.removeEventListener(
@@ -606,21 +578,22 @@ export default {
       return this.open
     },
     /**
-     * Recursively checks whether a click target is contained within any child
-     * or descendant child's element. This handles the case where a Context or
-     * Modal child teleports its own DOM separately to <body> (e.g.
-     * FormulaInputContext inside a Modal), meaning the click won't be found in
-     * the direct child's element but will be found in a grandchild's element.
+     * Collects DOM roots for nested Context/Modal children 
+     * Used with onClickOutside `ignoreElements` so clicks on those surfaces do not
+     * close this menu.
      */
-    _isClickInsideChildTree(children, target) {
-      return children.some((child) => {
+    _collectChildContextRoots(children) {
+      const roots = []
+      for (const child of children) {
         const childEl = child.$refs.contextEl || child.$refs.modalWrapper
-        if (childEl && isElement(childEl, target)) return true
-        if (child.children && child.children.length > 0) {
-          return this._isClickInsideChildTree(child.children, target)
+        if (childEl) {
+          roots.push(childEl)
         }
-        return false
-      })
+        if (child.children && child.children.length > 0) {
+          roots.push(...this._collectChildContextRoots(child.children))
+        }
+      }
+      return roots
     },
     registerChild(child) {
       this.children.push(child)

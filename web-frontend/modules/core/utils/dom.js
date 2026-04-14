@@ -73,20 +73,60 @@ export const findScrollableParent = (element) => {
 }
 
 /**
+ * @typedef {Object} OnClickOutsideOptions
+ * @property {Array<HTMLElement|null|undefined>|(() => Array<HTMLElement|null|undefined>)} [ignoreElements]
+ *   Extra roots (e.g. opener button, teleported child menus) that count as “inside” for
+ *   closing. Pass a function to resolve roots on each event so late-mounted nodes work.
+ *   Mousedown is snapshotted when the target is not under `el` so optimistic unmounts
+ *   before `click` still count as inside.
+ */
+
+/**
+ * Resolves ignoreElements option to a list of DOM roots.
+ *
+ * @param {OnClickOutsideOptions|undefined} options
+ * @returns {HTMLElement[]}
+ */
+const resolveIgnoreElements = (options) => {
+  if (!options || !options.ignoreElements) {
+    return []
+  }
+  const raw =
+    typeof options.ignoreElements === 'function'
+      ? options.ignoreElements()
+      : options.ignoreElements
+  const list = Array.isArray(raw) ? raw : []
+  return list.filter((node) => node != null)
+}
+
+/**
+ * @param {HTMLElement[]} roots
+ * @param {EventTarget|null} target
+ * @returns {boolean}
+ */
+const isTargetInsideAnyRoot = (roots, target) => {
+  return roots.some((root) => isElement(root, target))
+}
+
+/**
  * Detects clicks outside el element and call callback
  *
  * Returns a callback to unregister click handlers after successful outside click
- * @param el
- * @param callback
- * @returns {(function(): void)|*}
+ * @param {HTMLElement} el
+ * @param {(target: EventTarget, event: MouseEvent) => void} callback
+ * @param {OnClickOutsideOptions} [options]
+ * @returns {() => void}
  */
-export const onClickOutside = (el, callback) => {
+export const onClickOutside = (el, callback, options) => {
   const insideEvent = new Set()
 
   // Firefox and Chrome both can both have a different `target` element on `click`
   // when you release the mouse at different coordinates. Therefore we expect this
   // variable to be set on mousedown to be consistent.
   let downElement = null
+
+  /** True if mousedown started inside an ignore root (while not under `el`); see snapshot comment below. */
+  let mousedownInsideIgnored = false
 
   // Add the event to the `insideEvent` map. This allow to be sure a click event has
   // been triggered from an element inside this context, even if the element has
@@ -98,6 +138,15 @@ export const onClickOutside = (el, callback) => {
 
   const clickOutsideMouseDownEvent = (event) => {
     downElement = event.target
+    const roots = resolveIgnoreElements(options)
+    // Only snapshot when not on `el`; clicks on `el` are handled via insideEvent.
+    // When ignore roots are teleported outside `el`, we must record mousedown here so
+    // optimistic updates that unmount before `click` still count as inside.
+    if (!isElement(el, event.target) && roots.length > 0) {
+      mousedownInsideIgnored = isTargetInsideAnyRoot(roots, event.target)
+    } else {
+      mousedownInsideIgnored = false
+    }
   }
   document.body.addEventListener('mousedown', clickOutsideMouseDownEvent)
 
@@ -112,9 +161,20 @@ export const onClickOutside = (el, callback) => {
       insideEvent.delete(event)
     }
 
+    const roots = resolveIgnoreElements(options)
+    const insideIgnoredRoot =
+      mousedownInsideIgnored ||
+      (roots.length > 0 &&
+        isTargetInsideAnyRoot(roots, downElement || event.target))
+    mousedownInsideIgnored = false
+
     // If the click was outside the context element because we want to ignore
     // clicks inside it or any child of this element
-    if (!isElement(el, target) && !insideContext) {
+    if (
+      !isElement(el, target) &&
+      !insideContext &&
+      !insideIgnoredRoot
+    ) {
       callback(target, event)
     }
   }
