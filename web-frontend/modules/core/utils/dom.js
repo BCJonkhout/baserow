@@ -170,11 +170,7 @@ export const onClickOutside = (el, callback, options) => {
 
     // If the click was outside the context element because we want to ignore
     // clicks inside it or any child of this element
-    if (
-      !isElement(el, target) &&
-      !insideContext &&
-      !insideIgnoredRoot
-    ) {
+    if (!isElement(el, target) && !insideContext && !insideIgnoredRoot) {
       callback(target, event)
     }
   }

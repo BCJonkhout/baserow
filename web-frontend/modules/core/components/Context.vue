@@ -578,7 +578,7 @@ export default {
       return this.open
     },
     /**
-     * Collects DOM roots for nested Context/Modal children 
+     * Collects DOM roots for nested Context/Modal children
      * Used with onClickOutside `ignoreElements` so clicks on those surfaces do not
      * close this menu.
      */
