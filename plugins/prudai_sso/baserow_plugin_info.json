@@ -1,0 +1,12 @@
+{
+  "name": "prudai_sso",
+  "version": "1.0.0",
+  "supported_baserow_versions": "2.2.0",
+  "plugin_api_version": "0.0.1-alpha",
+  "description": "PrudAI SSO: Keycloak OIDC license bypass + silent org-to-workspace provisioning.",
+  "author": "PrudAI",
+  "author_url": "https://prudai.com",
+  "url": "https://prudai.com",
+  "license": "Proprietary",
+  "contact": "engineering@prudai.com"
+}

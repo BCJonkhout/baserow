@@ -1,0 +1,15 @@
+# Derivative of the stock baserow/backend image that bakes the prudai_sso
+# plugin source into the image. Baserow resolves plugin imports via the
+# PYTHONPATH env var (see /baserow/backend/docker/docker-entrypoint.sh), so
+# we just need the files in place and that path added to PYTHONPATH (done in
+# docker-compose.override.yml to keep this image reusable).
+ARG BASEROW_VERSION=2.2.0
+FROM baserow/backend:${BASEROW_VERSION}
+
+USER root
+COPY --chown=9999:9999 plugins/prudai_sso /baserow/plugins/prudai_sso
+# Baserow's settings.base discovers plugins by listing $BASEROW_PLUGIN_DIR
+# for dirs containing a "backend" subdir and appends them to INSTALLED_APPS.
+# We do NOT call install_plugin.sh here because the stock venv is uv-managed
+# and does not expose pip; instead we extend PYTHONPATH at runtime.
+USER "$DOCKER_USER"

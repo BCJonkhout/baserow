@@ -166,3 +166,4 @@ web-frontend/.nuxt-storybook/
 web-frontend/storybook-static
 
 .agent
+plugins/prudai_sso/backend/build/
