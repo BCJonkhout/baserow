@@ -167,3 +167,11 @@ web-frontend/storybook-static
 
 .agent
 plugins/prudai_sso/backend/build/
+
+# OpenBao rollback + bootstrap artifacts (never commit — added 2026-04-16)
+.env.prev
+.env.pre-bao-*
+.env.new
+.bao-role-id
+.bao-sources
+
